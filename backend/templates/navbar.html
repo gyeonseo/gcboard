@@ -1,0 +1,15 @@
+<nav>
+    <a href="{{ url_for('web.index') }}">메인</a>
+    <a href="{{ url_for('web.board_list') }}">게시판 목록</a>
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('web.profile') }}">프로필({{ current_user.nickname or current_user.email }})</a>
+        <a href="{{ url_for('web.logout') }}">로그아웃</a>
+        {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('web.admin') }}">관리자</a>
+        {% endif %}
+    {% else %}
+        <a href="{{ url_for('web.login') }}">로그인</a>
+        <a href="{{ url_for('web.register') }}">회원가입</a>
+    {% endif %}
+</nav>
+<hr>

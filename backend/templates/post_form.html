@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}글쓰기{% endblock %}
+{% block content %}
+<h1>글쓰기</h1>
+<form action="" method="post">
+    <input type="hidden" name="board_id" value="{{ board.board_id }}">
+    {% if post %}
+        <input type="hidden" name="article_id" value="{{ post.post_id }}">
+    {% endif %}
+    제목: <input type="text" name="title" value="{{ post.title if post else '' }}" required><br>
+    내용: <textarea name="content" required>{{ post.content if post else '' }}</textarea><br>
+    익명 <input type="checkbox" name="is_anonym" value="1" {% if post and post.is_anonymous %}checked{% endif %}><br>
+    <button type="submit">{{ '수정' if post else '작성' }}</button>
+</form>
+<a href="{{ url_for('board.board_detail', board_id=board.board_id) }}">목록으로</a>
+{% endblock %}

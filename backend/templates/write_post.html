@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{% if post %}글 수정{% else %}글 작성{% endif %}{% endblock %}
+{% block content %}
+<h2>{% if post %}글 수정{% else %}글 작성{% endif %}</h2>
+<form method="post">
+    <div>
+        <label for="title">제목:</label>
+        <input type="text" id="title" name="title" value="{{ post.title if post else '' }}" required>
+    </div>
+    <div>
+        <label for="content">내용:</label>
+        <textarea id="content" name="content" required>{{ post.content if post else '' }}</textarea>
+    </div>
+    <div>
+        <label>
+            <input type="checkbox" name="is_anonym" value="1" {% if post and post.is_anonymous %}checked{% endif %}>
+            익명
+        </label>
+    </div>
+    <button type="submit">{% if post %}수정{% else %}작성{% endif %}</button>
+</form>
+{% endblock %} 

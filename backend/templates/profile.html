@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}프로필{% endblock %}
+{% block content %}
+<div class="profile-card">
+    <div class="profile-info">
+        <div class="profile-avatar">👤</div>
+        <div class="profile-main">
+            <h2 class="profile-name">{{ current_user.nickname or current_user.email }}</h2>
+            <div class="profile-meta">
+                <span class="profile-email">📧 {{ current_user.email }}</span>
+                <span class="profile-date">가입일: {{ current_user.created_at.strftime('%Y-%m-%d') }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="profile-section">
+    <h3>내가 쓴 글</h3>
+    <div class="profile-list">
+    {% for post in current_user.posts %}
+        <div class="profile-list-card">
+            <a href="{{ url_for('web.post_detail', post_id=post.post_id) }}" class="profile-list-title">{{ post.title }}</a>
+            <div class="profile-list-meta">
+                <span class="profile-list-board">📁 {{ post.board.name }}</span>
+                <span class="profile-list-like">👍 {{ post.like_count }}</span>
+                <span class="profile-list-comment">💬 {{ post.comment_count }}</span>
+                <span class="profile-list-date">🕒 {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+        </div>
+    {% else %}
+        <div class="profile-list-empty">작성한 글이 없습니다.</div>
+    {% endfor %}
+    </div>
+</div>
+
+<div class="profile-section">
+    <h3>내가 쓴 댓글</h3>
+    <div class="profile-list">
+    {% for comment in current_user.comments %}
+        <div class="profile-list-card">
+            <a href="{{ url_for('web.post_detail', post_id=comment.post_id) }}#comment-{{ comment.comment_id }}" class="profile-list-title">
+                {{ comment.content[:50] }}{% if comment.content|length > 50 %}...{% endif %}
+            </a>
+            <div class="profile-list-meta">
+                <span class="profile-list-board">📝 {{ comment.post.title }}</span>
+                <span class="profile-list-date">🕒 {{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+        </div>
+    {% else %}
+        <div class="profile-list-empty">작성한 댓글이 없습니다.</div>
+    {% endfor %}
+    </div>
+</div>
+
+<div class="profile-section">
+    <h3>프로필 수정</h3>
+    <form action="{{ url_for('web.profile') }}" method="post" class="profile-form-card">
+        <div class="form-group">
+            <label for="nickname">닉네임</label>
+            <input type="text" id="nickname" name="nickname" value="{{ current_user.nickname or '' }}">
+        </div>
+        <div class="form-group">
+            <label for="current_password">현재 비밀번호</label>
+            <input type="password" id="current_password" name="current_password">
+        </div>
+        <div class="form-group">
+            <label for="new_password">새 비밀번호</label>
+            <input type="password" id="new_password" name="new_password">
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">새 비밀번호 확인</label>
+            <input type="password" id="confirm_password" name="confirm_password">
+        </div>
+        <button type="submit" class="button">수정하기</button>
+    </form>
+</div>
+
+<style>
+.profile-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+.profile-avatar {
+    font-size: 2.5rem;
+    background: #f1f3f5;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.profile-main {
+    flex: 1;
+}
+.profile-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+}
+.profile-meta {
+    color: #666;
+    font-size: 0.97rem;
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+}
+.profile-section {
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+}
+.profile-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+    margin-top: 0.7rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+.profile-list::-webkit-scrollbar {
+    width: 8px;
+}
+.profile-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+.profile-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+.profile-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+.profile-list-card {
+    background: #fafbfc;
+    border: 1px solid #e0e0e0;
+    border-radius: 7px;
+    padding: 0.9rem 1rem 0.7rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.profile-list-title {
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #007bff;
+    text-decoration: none;
+    margin-bottom: 0.2rem;
+}
+.profile-list-title:hover {
+    text-decoration: underline;
+}
+.profile-list-meta {
+    font-size: 0.95rem;
+    color: #666;
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+.profile-list-board {
+    color: #007bff;
+}
+.profile-list-like {
+    color: #dc3545;
+}
+.profile-list-comment {
+    color: #28a745;
+}
+.profile-list-date {
+    color: #888;
+}
+.profile-list-empty {
+    color: #aaa;
+    font-size: 0.98rem;
+    padding: 0.7rem 0;
+    text-align: center;
+}
+.profile-form-card {
+    background: #fafbfc;
+    border: 1px solid #e0e0e0;
+    border-radius: 7px;
+    padding: 1.2rem 1.2rem 1rem 1.2rem;
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.form-group label {
+    font-size: 0.97rem;
+    color: #333;
+    margin-bottom: 0.2rem;
+}
+.form-group input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    min-width: 56px;
+    padding: 0 0.8rem;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: #fff;
+    font-size: 0.95rem;
+    font-family: inherit;
+    font-weight: 500;
+    text-decoration: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background 0.15s;
+    line-height: 1.1;
+    appearance: none;
+    vertical-align: middle;
+    box-shadow: none;
+}
+.button:hover { background: #0056b3; }
+</style>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}관리자 통계{% endblock %}
+{% block content %}
+<h1>관리자 통계</h1>
+<ul>
+    <li>회원 수: {{ stats.user_count }}</li>
+    <li>게시글 수: {{ stats.post_count }}</li>
+    <li>댓글 수: {{ stats.comment_count }}</li>
+    <li>게시판 수: {{ stats.board_count }}</li>
+</ul>
+{% endblock %}

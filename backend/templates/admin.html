@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% block title %}관리자 페이지{% endblock %}
+{% block content %}
+<h1>관리자 페이지</h1>
+
+<div class="admin-card">
+<section class="admin-stats">
+    <h2>통계</h2>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <h3>회원 수</h3>
+            <p id="user-count">{{ stats.user_count }}</p>
+        </div>
+        <div class="stat-item">
+            <h3>게시글 수</h3>
+            <p id="post-count">{{ stats.post_count }}</p>
+        </div>
+        <div class="stat-item">
+            <h3>댓글 수</h3>
+            <p id="comment-count">{{ stats.comment_count }}</p>
+        </div>
+        <div class="stat-item">
+            <h3>게시판 수</h3>
+            <p id="board-count">{{ stats.board_count }}</p>
+        </div>
+    </div>
+    <button id="admin-stats-refresh" class="button">새로고침</button>
+</section>
+</div>
+
+<div class="admin-card">
+<section class="admin-boards">
+    <h2>게시판 관리</h2>
+    <form action="{{ url_for('board.board_manage') }}" method="post" class="board-form">
+        <div class="form-group">
+            <label for="board_name">게시판 이름</label>
+            <input type="text" id="board_name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="board_description">설명</label>
+            <input type="text" id="board_description" name="description">
+        </div>
+        <button type="submit" class="button">게시판 생성</button>
+    </form>
+
+    <h3>게시판 목록</h3>
+    <div class="table-wrap">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>이름</th>
+                <th>설명</th>
+                <th>작업</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for board in boards %}
+            <tr>
+                <td>{{ board.board_id }}</td>
+                <td>{{ board.name }}</td>
+                <td>{{ board.description }}</td>
+                <td>
+                    <form action="{{ url_for('board.board_manage') }}" method="post" style="display: inline;">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="board_id" value="{{ board.board_id }}">
+                        <button type="submit" class="button delete" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</section>
+</div>
+
+<div class="admin-card">
+<section class="admin-users">
+    <h2>사용자 관리</h2>
+    <div class="table-wrap">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>이메일</th>
+                <th>닉네임</th>
+                <th>역할</th>
+                <th>상태</th>
+                <th>작업</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.user_id }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.nickname }}</td>
+                <td>
+                    <form action="{{ url_for('admin.ban_user') }}" method="post" style="display: inline;">
+                        <input type="hidden" name="user_id" value="{{ user.user_id }}">
+                        <select name="role" onchange="this.form.submit()" title="사용자 역할 선택" class="role-select">
+                            <option value="user" {% if user.role == 'user' %}selected{% endif %}>일반</option>
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>관리자</option>
+                        </select>
+                    </form>
+                </td>
+                <td>
+                    {% if user.is_banned %}
+                        <span class="status-banned">정지됨</span>
+                    {% else %}
+                        <span class="status-active">활성</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="admin-actions">
+                        <form action="{{ url_for('admin.ban_user') }}" method="post" style="display: inline;">
+                            <input type="hidden" name="user_id" value="{{ user.user_id }}">
+                            <input type="hidden" name="ban" value="{{ '0' if user.is_banned else '1' }}">
+                            <button type="submit" class="button {% if user.is_banned %}unban{% else %}ban{% endif %}">
+                                {% if user.is_banned %}정지 해제{% else %}정지{% endif %}
+                            </button>
+                        </form>
+                        <form action="{{ url_for('admin.reset_password') }}" method="post" style="display: inline;">
+                            <input type="hidden" name="user_id" value="{{ user.user_id }}">
+                            <button type="submit" class="button reset-password" onclick="return confirm('비밀번호를 초기화하시겠습니까?')">비밀번호 초기화</button>
+                        </form>
+                        {% if user.email != 'admin@example.com' and user.email != 'unknown@example.com' %}
+                        <form style="display: inline;">
+                            <button type="button" class="button button-danger" onclick="deleteUser({{ user.user_id }})">삭제</button>
+                        </form>
+                        {% endif %}
+                        {% if not user.is_authenticated %}
+                        <form method="post" action="{{ url_for('admin.force_verify_user', user_id=user.user_id) }}" style="display:inline;">
+                            <button type="submit" class="button">인증 승인</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</section>
+</div>
+
+<div class="admin-card">
+<section class="admin-posts">
+    <h2>게시물 관리</h2>
+    <div class="search-box">
+        <input type="text" id="post-search" placeholder="게시물 검색...">
+        <button class="button" onclick="searchPosts()">검색</button>
+    </div>
+    <div class="table-wrap">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>게시판</th>
+                <th>작성일</th>
+                <th>작업</th>
+            </tr>
+        </thead>
+        <tbody id="posts-table-body">
+            <!-- JavaScript로 동적 로딩 -->
+        </tbody>
+    </table>
+    </div>
+</section>
+</div>
+
+<style>
+.admin-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.admin-stats {
+    margin-bottom: 2rem;
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.stat-item {
+    background: #f5f5f5;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+}
+.stat-item h3 {
+    margin: 0;
+    color: #666;
+}
+.stat-item p {
+    font-size: 2rem;
+    margin: 0.5rem 0 0;
+    color: #333;
+}
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    background: #fafbfc;
+    border-radius: 7px;
+    overflow: hidden;
+    font-size: 0.98rem;
+}
+.admin-table th,
+.admin-table td {
+    padding: 0.7rem 0.5rem;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+}
+.admin-table th {
+    background: #f5f5f5;
+    font-weight: bold;
+    color: #333;
+}
+.admin-table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+.admin-table tr:hover {
+    background: #f1f3f5;
+}
+.table-wrap {
+    overflow-x: auto;
+}
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    min-width: 56px;
+    padding: 0 0.8rem;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: #fff;
+    font-size: 0.95rem;
+    font-family: inherit;
+    font-weight: 500;
+    text-decoration: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background 0.15s;
+    line-height: 1.1;
+    appearance: none;
+    vertical-align: middle;
+    box-shadow: none;
+}
+.button.delete { background: #dc3545; }
+.button.delete:hover { background: #c82333; }
+.button.edit { background: #28a745; }
+.button.edit:hover { background: #218838; }
+.button.ban { background: #dc3545; }
+.button.unban { background: #28a745; }
+.button.reset-password { background: #ffc107; color: #333; }
+.button.reset-password:hover { background: #e0a800; color: #fff; }
+.button:hover { background: #0056b3; color: #fff; }
+.status-banned {
+    color: #dc3545;
+}
+.status-active {
+    color: #28a745;
+}
+.form-group {
+    margin-bottom: 1rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.role-select {
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 0.97rem;
+}
+.admin-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+.search-box {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+.search-box input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+</style>
+<script>
+document.getElementById('admin-stats-refresh')?.addEventListener('click', function() {
+    fetch('/api/admin/stats')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('user-count').innerText = data.user_count;
+            document.getElementById('post-count').innerText = data.post_count;
+            document.getElementById('comment-count').innerText = data.comment_count;
+            document.getElementById('board-count').innerText = data.board_count;
+        });
+});
+function searchPosts() {
+    const searchTerm = document.getElementById('post-search').value;
+    fetch(`/api/admin/posts/search?q=${encodeURIComponent(searchTerm)}`)
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('posts-table-body');
+            tbody.innerHTML = '';
+            
+            data.posts.forEach(post => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${post.post_id}</td>
+                    <td>${post.title}</td>
+                    <td>${post.author}</td>
+                    <td>${post.board_name}</td>
+                    <td>${new Date(post.created_at).toLocaleString()}</td>
+                    <td>
+                        <form action="/admin/post/delete" method="post" style="display: inline;">
+                            <input type="hidden" name="post_id" value="${post.post_id}">
+                            <button type="submit" class="button delete" onclick="return confirm('정말 이 게시물을 삭제하시겠습니까?')">삭제</button>
+                        </form>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+}
+document.addEventListener('DOMContentLoaded', searchPosts);
+
+function deleteUser(userId) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    fetch(`/api/admin/users/${userId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: '_method=DELETE',
+        credentials: 'same-origin'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('삭제 실패: ' + (data.error || ''));
+        }
+    });
+}
+</script>
+{% endblock %} 

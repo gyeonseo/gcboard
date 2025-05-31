@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}게시판 목록{% endblock %}
+{% block content %}
+<h1>게시판 목록</h1>
+<div class="board-list">
+{% for board in boards %}
+    <div class="board-card">
+        <div class="board-title">
+            <a href="{{ url_for('board.board_detail', board_id=board.board_id) }}">{{ board.name }}</a>
+        </div>
+        <div class="board-desc">{{ board.description }}</div>
+    </div>
+{% endfor %}
+</div>
+
+<style>
+.board-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+}
+.board-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.2rem 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 90px;
+}
+.board-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.board-title a {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #222;
+    text-decoration: none;
+}
+.board-title a:hover {
+    color: #007bff;
+}
+.board-desc {
+    margin-top: 0.5rem;
+    color: #666;
+    font-size: 0.97rem;
+}
+</style>
+{% endblock %}
