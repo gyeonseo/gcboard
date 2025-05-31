@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from models import Board, Post, User, db, EmailVerification, Comment
+from backend.models import Board, Post, User, db, EmailVerification, Comment
 from flask_login import login_required, current_user, login_user, logout_user
 from sqlalchemy import desc
 from werkzeug.security import generate_password_hash, check_password_hash
-from utils.email import send_verification_email
+from backend.utils.email import send_verification_email
 import datetime
 import secrets
 

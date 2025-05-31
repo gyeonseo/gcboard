@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Like, Post
+from backend.models import db, Like, Post
 from flask_login import login_required, current_user
 
 like_bp = Blueprint('like', __name__)

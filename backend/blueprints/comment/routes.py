@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Comment, Post, User
+from backend.models import db, Comment, Post, User
 from flask_login import login_required, current_user
 from sqlalchemy import desc
 

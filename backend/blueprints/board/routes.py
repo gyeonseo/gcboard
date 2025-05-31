@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, flash, redirect, url_for
-from models import db, Board, Post, User, Like
+from backend.models import db, Board, Post, User, Like
 from flask_login import login_required, current_user
 from sqlalchemy import desc
 
