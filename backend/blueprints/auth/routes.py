@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for, current_app
-from models import db, User, EmailVerification
+from backend.models import db, User, EmailVerification
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from email_validator import validate_email, EmailNotValidError

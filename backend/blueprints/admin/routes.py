@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify, flash, redirect, url_for
-from models import db, User, Post, Comment, Board, Like
+from backend.models import db, User, Post, Comment, Board, Like
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
-from utils.email import send_email
+from backend.utils.email import send_email
 import secrets
 import string
 

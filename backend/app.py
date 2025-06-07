@@ -4,12 +4,12 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_cors import CORS
-from models import db, User, Board
+from backend.models import db, User, Board
 from werkzeug.security import generate_password_hash
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('config.Config')
+    app.config.from_object('backend.config.Config')
 
     # ORM, 마이그레이션, 메일, CORS 초기화
     db.init_app(app)
@@ -69,12 +69,12 @@ def create_app():
         return User.query.get(int(user_id))
 
     # API 블루프린트 등록
-    from blueprints.auth.routes import auth_bp
-    from blueprints.board.routes import board_bp
-    from blueprints.comment.routes import comment_bp
-    from blueprints.like.routes import like_bp
-    from blueprints.community.routes import community_bp
-    from blueprints.admin.routes import admin_bp
+    from backend.blueprints.auth.routes import auth_bp
+    from backend.blueprints.board.routes import board_bp
+    from backend.blueprints.comment.routes import comment_bp
+    from backend.blueprints.like.routes import like_bp
+    from backend.blueprints.community.routes import community_bp
+    from backend.blueprints.admin.routes import admin_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(board_bp, url_prefix='/api/board')
@@ -84,7 +84,7 @@ def create_app():
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
     # 웹 페이지 블루프린트 등록
-    from blueprints.web.routes import web_bp
+    from backend.blueprints.web.routes import web_bp
     app.register_blueprint(web_bp)
 
     return app

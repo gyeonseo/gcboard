@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, Response
-from models import db, Board, Post, User
+from backend.models import db, Board, Post, User
 from sqlalchemy import desc
 
 community_bp = Blueprint('community', __name__)
