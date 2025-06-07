@@ -11,7 +11,7 @@ def test_register_user(client, app):
         mail.send = MagicMock()  # 이메일 발송 mock 처리
 
     payload = {
-        "email": "test@naver.com",
+        "email": "test22@naver.com",
         "password": "test1234",
         "nickname": "testuser"
     }
