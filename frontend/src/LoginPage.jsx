@@ -41,7 +41,6 @@ export default function LoginPage() {
           />
           <button type="submit">로그인</button>
 
-          {/* ✅ 하단 로그인 옵션 */}
           <div className="login-options">
             <label className="remember-me">
               로그인 유지
@@ -53,7 +52,7 @@ export default function LoginPage() {
           </div>
 
           <div className="signup-link">
-            <a href="#">회원가입</a>
+            <a href="register">회원가입</a>
           </div>
         </form>
       </div>
