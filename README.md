@@ -4,13 +4,21 @@ This project is a backend application for a community bulletin board built with 
 
 ## 📁 Project Structure
 gcboard/
+
 ├── backend/
+
 │ ├── app.py
+
 │ ├── config.py
+
 │ ├── models/
+
 │ ├── routes/
+
 │ └── ...
+
 └── frontend/
+
 
 ## 🚀 Getting Started
 
